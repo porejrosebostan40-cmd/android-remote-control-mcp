@@ -216,48 +216,4 @@ class TypeInputControllerImpl
                     }
                 }
             }
-
     }
-
-        private fun recycle(node: AccessibilityNodeInfo) {
-            @Suppress("DEPRECATION")
-            node.recycle()
-        }
-
-        private fun findFocusedEditableNodeForInput(
-            provider: AccessibilityServiceProvider,
-        ): AccessibilityNodeInfo? = synchronized(AccessibilityTreeLock.monitor) {
-                if (!provider.isReady()) return@synchronized null
-                val windows = provider.getAccessibilityWindows()
-                try {
-                    for (window in windows) {
-                        val root = window.root ?: continue
-                        val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
-                        if (focused != null && focused.isEditable) {
-                            @Suppress("DEPRECATION")
-                            root.recycle()
-                            return@synchronized focused
-                        }
-                        @Suppress("DEPRECATION")
-                        root.recycle()
-                        if (focused != null) {
-                            @Suppress("DEPRECATION")
-                            focused.recycle()
-                        }
-                    }
-                    if (windows.isEmpty()) {
-                        val root = provider.getRootNode() ?: return@synchronized null
-                        val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
-                        @Suppress("DEPRECATION")
-                        root.recycle()
-                        return@synchronized focused?.takeIf { it.isEditable }
-                    }
-                    null
-                } finally {
-                    for (window in windows) {
-                        @Suppress("DEPRECATION")
-                        window.recycle()
-                    }
-                }
-            }
-}
