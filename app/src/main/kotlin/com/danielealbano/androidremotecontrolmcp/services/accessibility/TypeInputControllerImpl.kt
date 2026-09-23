@@ -17,6 +17,7 @@ import javax.inject.Inject
  * text-editing MCP tools without requiring Android 13.
  */
 @Suppress("ReturnCount", "NestedBlockDepth")
+
 class TypeInputControllerImpl
     @Inject
     constructor(
