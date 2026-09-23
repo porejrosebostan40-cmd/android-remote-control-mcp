@@ -2,7 +2,7 @@
 
 package com.danielealbano.androidremotecontrolmcp.integration
 
-import android.view.inputmethod.SurroundingText
+import com.danielealbano.androidremotecontrolmcp.services.accessibility.TypeInputController.TextSnapshot
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.AccessibilityNodeData
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.BoundsData
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.ScreenInfo
@@ -56,14 +56,13 @@ class TextInputIntegrationTest {
     private fun createMockSurroundingText(
         text: String,
         offset: Int = 0,
-    ): SurroundingText {
-        val mock = mockk<SurroundingText>()
-        every { mock.text } returns text
-        every { mock.offset } returns offset
-        every { mock.selectionStart } returns text.length
-        every { mock.selectionEnd } returns text.length
-        return mock
-    }
+    ): TextSnapshot =
+        TextSnapshot(
+            text = text,
+            offset = offset,
+            selectionStart = text.length,
+            selectionEnd = text.length,
+        )
 
     @BeforeEach
     fun setUp() {
