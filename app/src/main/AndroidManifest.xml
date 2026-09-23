@@ -79,8 +79,7 @@
         <!-- MCP Server Foreground Service -->
         <service
             android:name=".services.mcp.McpServerService"
-            android:exported="false"
-        </service>
+            android:exported="false" />
 
         <!-- Accessibility Service -->
         <service
