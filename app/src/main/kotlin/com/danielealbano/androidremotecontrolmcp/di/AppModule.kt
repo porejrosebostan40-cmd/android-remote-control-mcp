@@ -183,7 +183,11 @@ abstract class ServiceModule {
     @Binds
     @Singleton
     abstract fun bindScreenStateSnapshotCache(impl: ScreenStateSnapshotCacheImpl): ScreenStateSnapshotCache
-\n    @Binds\n    @Singleton\n    abstract fun bindTypeInputController(impl: TypeInputControllerImpl): TypeInputController\n
+
+    @Binds
+    @Singleton
+    abstract fun bindTypeInputController(impl: TypeInputControllerImpl): TypeInputController
+
     @Binds
     @Singleton
     abstract fun bindApiLevelProvider(impl: DefaultApiLevelProvider): ApiLevelProvider
