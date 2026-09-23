@@ -218,7 +218,7 @@ android {
 
     defaultConfig {
         applicationId = "com.danielealbano.androidremotecontrolmcp"
-        minSdk = 33
+        minSdk = 30
         targetSdk = 34
         versionCode = versionCodeProp
         versionName = versionNameProp
