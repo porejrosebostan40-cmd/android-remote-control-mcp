@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.McpAccessibilityService
@@ -281,7 +282,11 @@ class PermissionUtilsTest {
                 ContextCompat.checkSelfPermission(mockContext, Manifest.permission.POST_NOTIFICATIONS)
             } returns PackageManager.PERMISSION_DENIED
 
-            assertFalse(PermissionUtils.isNotificationPermissionGranted(mockContext))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                assertFalse(PermissionUtils.isNotificationPermissionGranted(mockContext))
+            } else {
+                assertTrue(PermissionUtils.isNotificationPermissionGranted(mockContext))
+            }
         }
     }
 
