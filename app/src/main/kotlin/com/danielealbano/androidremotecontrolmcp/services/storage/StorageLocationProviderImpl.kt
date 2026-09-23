@@ -373,7 +373,8 @@ class StorageLocationProviderImpl
         companion object {
             private const val TAG = "MCP:StorageProvider"
             private const val MAX_LOCATION_ID_LOG_LENGTH = 200
-            private const val READ_MEDIA_VISUAL_USER_SELECTED_PERMISSION = "android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
+            private const val READ_MEDIA_VISUAL_USER_SELECTED_PERMISSION =
+                "android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
             private val CONTROL_CHAR_REGEX = Regex("[\\p{Cntrl}]")
 
             private fun sanitizeLocationId(locationId: String): String =
