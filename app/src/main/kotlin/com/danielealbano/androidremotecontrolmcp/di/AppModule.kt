@@ -33,8 +33,6 @@ import com.danielealbano.androidremotecontrolmcp.services.accessibility.ActionEx
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.ActionExecutorImpl
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.ScreenStateSnapshotCache
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.ScreenStateSnapshotCacheImpl
-import com.danielealbano.androidremotecontrolmcp.services.accessibility.TypeInputController
-import com.danielealbano.androidremotecontrolmcp.services.accessibility.TypeInputControllerImpl
 import com.danielealbano.androidremotecontrolmcp.services.apps.AppManager
 import com.danielealbano.androidremotecontrolmcp.services.apps.AppManagerImpl
 import com.danielealbano.androidremotecontrolmcp.services.camera.CameraProvider
@@ -187,10 +185,6 @@ abstract class ServiceModule {
     @Binds
     @Singleton
     abstract fun bindApiLevelProvider(impl: DefaultApiLevelProvider): ApiLevelProvider
-
-    @Binds
-    @Singleton
-    abstract fun bindTypeInputController(impl: TypeInputControllerImpl): TypeInputController
 
     @Binds
     @Singleton
