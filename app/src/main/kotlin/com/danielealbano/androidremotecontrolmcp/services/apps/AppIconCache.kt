@@ -130,7 +130,7 @@ class AppIconCache
                     addCategory(android.content.Intent.CATEGORY_LAUNCHER)
                 }
             return pm
-                .queryIntentActivities(launchIntent, PackageManager.ResolveInfoFlags.of(0))
+                .queryIntentActivities(launchIntent, 0)
                 .mapNotNull { resolveInfo ->
                     val pkgName = resolveInfo.activityInfo?.packageName ?: return@mapNotNull null
                     val label = resolveInfo.loadLabel(pm)?.toString() ?: return@mapNotNull null
