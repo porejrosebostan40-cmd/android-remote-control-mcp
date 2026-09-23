@@ -47,6 +47,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+
 @DisplayName("Privacy Mode Egress Integration Tests")
 class PrivacyModeIntegrationTest {
     private val screenInfo = ScreenInfo(width = 1080, height = 2400, densityDpi = 420, orientation = "portrait")
