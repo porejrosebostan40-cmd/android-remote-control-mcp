@@ -43,9 +43,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 @DisplayName("StorageLocationProviderImpl")
 class StorageLocationProviderTest {
-    private val imagesReadPermission = BuiltinStorageLocation.PICTURES.collections[0].readMediaPermission!!
-    private val videoReadPermission = BuiltinStorageLocation.PICTURES.collections[1].readMediaPermission!!
-    private val audioReadPermission = BuiltinStorageLocation.RECORDINGS.collections[0].readMediaPermission!!
+    private val imagesReadPermission =
+        BuiltinStorageLocation.PICTURES.collections[0].readMediaPermission!!
+    private val videoReadPermission =
+        BuiltinStorageLocation.PICTURES.collections[1].readMediaPermission!!
+    private val audioReadPermission =
+        BuiltinStorageLocation.RECORDINGS.collections[0].readMediaPermission!!
     @MockK
     private lateinit var mockContext: Context
 
