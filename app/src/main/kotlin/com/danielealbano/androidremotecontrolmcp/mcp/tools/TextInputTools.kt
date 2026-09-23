@@ -228,7 +228,7 @@ private fun dispatchCommitText(
 ) {
     if (!ctx.controller.commitText(codePointStr, 1)) {
         throw McpToolException.ActionFailed(
-            "Input connection lost during typing at position $codePointIndex of ${ctx.codePointCount}. " +
+            "accessibility text controller lost during typing at position $codePointIndex of ${ctx.codePointCount}. " +
                 "commitText returned false.",
         )
     }
@@ -243,7 +243,7 @@ private fun verifyCommittedChar(
     val surrounding =
         ctx.controller.getSurroundingText(charCount, 0, 0)
             ?: throw McpToolException.ActionFailed(
-                "Input connection lost during verification at position $codePointIndex of ${ctx.codePointCount}.",
+                "accessibility text controller lost during verification at position $codePointIndex of ${ctx.codePointCount}.",
             )
     return surrounding.text.toString().endsWith(codePointStr)
 }
@@ -350,7 +350,7 @@ internal suspend fun awaitInputConnectionReady(
         delay(FOCUS_POLL_INTERVAL_MS)
     }
     throw McpToolException.ActionFailed(
-        "Input connection not available after focusing node '$nodeId'. " +
+        "accessibility text controller not available after focusing node '$nodeId'. " +
             "The node may not be an editable text field.",
     )
 }
@@ -361,7 +361,7 @@ internal suspend fun awaitInputConnectionReady(
  * can verify the result.
  *
  * Returns the field text as a String, or a fallback message if the
- * content could not be read (e.g., input connection lost after the operation).
+ * content could not be read (e.g., accessibility text controller lost after the operation).
  * This is best-effort — a read failure does NOT cause the tool to fail,
  * since the operation itself already succeeded.
  *
@@ -432,7 +432,7 @@ class TypeAppendTextTool
                         } ?: 0
                     if (!typeInputController.setSelection(textLength, textLength)) {
                         throw McpToolException.ActionFailed(
-                            "Failed to position cursor in node '$nodeId' — input connection lost",
+                            "Failed to position cursor in node '$nodeId' — accessibility text controller lost",
                         )
                     }
 
@@ -460,7 +460,7 @@ class TypeAppendTextTool
                 name = "$toolNamePrefix$TOOL_NAME",
                 description =
                     "Type text character by character at the end of a text field. " +
-                        "Uses natural InputConnection typing (indistinguishable from keyboard input). " +
+                        "Uses Android accessibility text editing for Android 11 compatibility. " +
                         "Maximum text length: $MAX_TEXT_LENGTH characters. " +
                         "For text longer than $MAX_TEXT_LENGTH chars, call this tool multiple times — " +
                         "subsequent calls continue typing at the current cursor position. " +
@@ -576,7 +576,7 @@ class TypeInsertTextTool
                     if (!typeInputController.setSelection(offset, offset)) {
                         throw McpToolException.ActionFailed(
                             "Failed to position cursor at offset $offset " +
-                                "in node '$nodeId' — input connection lost",
+                                "in node '$nodeId' — accessibility text controller lost",
                         )
                     }
 
@@ -604,7 +604,7 @@ class TypeInsertTextTool
                 name = "$toolNamePrefix$TOOL_NAME",
                 description =
                     "Type text character by character at a specific position in a text field. " +
-                        "Uses natural InputConnection typing (indistinguishable from keyboard input). " +
+                        "Uses Android accessibility text editing for Android 11 compatibility. " +
                         "Maximum text length: $MAX_TEXT_LENGTH characters. " +
                         verificationAndKeyboardHint(toolNamePrefix),
                 inputSchema =
@@ -761,7 +761,7 @@ class TypeReplaceTextTool
                     // Select the found text — check return value
                     if (!typeInputController.setSelection(absoluteStart, absoluteEnd)) {
                         throw McpToolException.ActionFailed(
-                            "Failed to select text in node '$nodeId' — input connection lost",
+                            "Failed to select text in node '$nodeId' — accessibility text controller lost",
                         )
                     }
 
@@ -771,7 +771,7 @@ class TypeReplaceTextTool
                         )
                     ) {
                         throw McpToolException.ActionFailed(
-                            "Failed to send DELETE key (ACTION_DOWN) on node '$nodeId' — input connection lost",
+                            "Failed to send DELETE key (ACTION_DOWN) on node '$nodeId' — accessibility text controller lost",
                         )
                     }
                     if (!typeInputController.sendKeyEvent(
@@ -779,7 +779,7 @@ class TypeReplaceTextTool
                         )
                     ) {
                         throw McpToolException.ActionFailed(
-                            "Failed to send DELETE key (ACTION_UP) on node '$nodeId' — input connection lost",
+                            "Failed to send DELETE key (ACTION_UP) on node '$nodeId' — accessibility text controller lost",
                         )
                     }
 
@@ -815,7 +815,7 @@ class TypeReplaceTextTool
                 description =
                     "Find and replace text in a field by typing the replacement naturally. " +
                         "Finds the first occurrence of search text, deletes it, then types new_text " +
-                        "character by character via InputConnection. " +
+                        "character by character via Android accessibility text editing. " +
                         "Maximum new_text length: $MAX_TEXT_LENGTH characters. " +
                         "Returns error if search text is not found. " +
                         verificationAndKeyboardHint(toolNamePrefix),
@@ -933,7 +933,7 @@ class TypeClearTextTool
                     // Select all text — check return value
                     if (!typeInputController.performContextMenuAction(android.R.id.selectAll)) {
                         throw McpToolException.ActionFailed(
-                            "Failed to select all text in node '$nodeId' — input connection lost",
+                            "Failed to select all text in node '$nodeId' — accessibility text controller lost",
                         )
                     }
 
@@ -943,7 +943,7 @@ class TypeClearTextTool
                         )
                     ) {
                         throw McpToolException.ActionFailed(
-                            "Failed to send DELETE key (ACTION_DOWN) on node '$nodeId' — input connection lost",
+                            "Failed to send DELETE key (ACTION_DOWN) on node '$nodeId' — accessibility text controller lost",
                         )
                     }
                     if (!typeInputController.sendKeyEvent(
@@ -951,7 +951,7 @@ class TypeClearTextTool
                         )
                     ) {
                         throw McpToolException.ActionFailed(
-                            "Failed to send DELETE key (ACTION_UP) on node '$nodeId' — input connection lost",
+                            "Failed to send DELETE key (ACTION_UP) on node '$nodeId' — accessibility text controller lost",
                         )
                     }
 
