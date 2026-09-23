@@ -293,7 +293,7 @@ class StorageLocationProviderImpl
         private fun hasPartialVisualAccess(entry: BuiltinStorageLocation): Boolean =
             entry.collections.any { it.isVisual } &&
                 permissionChecker.hasPermission(
-                    android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
                 )
 
         @Suppress("TooGenericExceptionCaught")
