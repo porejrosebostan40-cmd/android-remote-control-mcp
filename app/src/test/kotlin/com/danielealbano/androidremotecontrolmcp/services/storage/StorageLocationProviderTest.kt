@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.util.Log
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -1337,10 +1339,10 @@ class StorageLocationProviderTest {
                 // Arrange
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
                 every {
-                    mockPermissionChecker.hasPermission(android.Manifest.permission.READ_MEDIA_IMAGES)
+                    mockPermissionChecker.hasPermission(BuiltinStorageLocation.PICTURES.collections[0].readMediaPermission!!)
                 } returns true
                 every {
-                    mockPermissionChecker.hasPermission(android.Manifest.permission.READ_MEDIA_VIDEO)
+                    mockPermissionChecker.hasPermission(BuiltinStorageLocation.PICTURES.collections[1].readMediaPermission!!)
                 } returns true
 
                 // Act
@@ -1424,7 +1426,7 @@ class StorageLocationProviderTest {
                 // Arrange
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
                 every {
-                    mockPermissionChecker.hasPermission(android.Manifest.permission.READ_MEDIA_AUDIO)
+                    mockPermissionChecker.hasPermission(BuiltinStorageLocation.RECORDINGS.collections[0].readMediaPermission!!)
                 } returns true
 
                 // Act
@@ -1454,11 +1456,12 @@ class StorageLocationProviderTest {
         @Test
         fun `pictures name is Selected files only under partial access`() =
             runTest {
+                assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
                 // Arrange
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
                 every {
                     mockPermissionChecker.hasPermission(
-                        android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
                     )
                 } returns true
 
@@ -1474,6 +1477,7 @@ class StorageLocationProviderTest {
         @Test
         fun `dcim name is Selected files only under partial access`() =
             runTest {
+                assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
                 // Arrange
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
                 every {
@@ -1535,6 +1539,7 @@ class StorageLocationProviderTest {
         @Test
         fun `full access wins over lingering user selected grant`() =
             runTest {
+                assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
                 // Arrange — all-granted must be checked before hasPartialVisualAccess
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
                 every {
@@ -1562,6 +1567,7 @@ class StorageLocationProviderTest {
         @Test
         fun `access level is partial under visual selection`() =
             runTest {
+                assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
                 // Arrange
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
                 every {
