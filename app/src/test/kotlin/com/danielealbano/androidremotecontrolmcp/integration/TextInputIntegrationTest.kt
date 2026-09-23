@@ -2,10 +2,10 @@
 
 package com.danielealbano.androidremotecontrolmcp.integration
 
-import com.danielealbano.androidremotecontrolmcp.services.accessibility.TextSnapshot
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.AccessibilityNodeData
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.BoundsData
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.ScreenInfo
+import com.danielealbano.androidremotecontrolmcp.services.accessibility.TextSnapshot
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.WindowData
 import io.mockk.coEvery
 import io.mockk.every
