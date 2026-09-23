@@ -124,7 +124,7 @@ enum class BuiltinStorageLocation(
             listOf(
                 MediaCollection(
                     collectionUriProvider = { MediaStore.Video.Media.EXTERNAL_CONTENT_URI },
-                    readMediaPermission = android.Manifest.permission.READ_MEDIA_VIDEO,
+                    readMediaPermission = readVideoPermission(),
                     mimeTypePrefix = "video/",
                     typeLabel = "videos",
                 ),
@@ -152,7 +152,7 @@ enum class BuiltinStorageLocation(
             listOf(
                 MediaCollection(
                     collectionUriProvider = { MediaStore.Images.Media.EXTERNAL_CONTENT_URI },
-                    readMediaPermission = android.Manifest.permission.READ_MEDIA_IMAGES,
+                    readMediaPermission = readImagesPermission(),
                     mimeTypePrefix = "image/",
                     typeLabel = "images",
                 ),
@@ -172,7 +172,7 @@ enum class BuiltinStorageLocation(
             listOf(
                 MediaCollection(
                     collectionUriProvider = { MediaStore.Audio.Media.EXTERNAL_CONTENT_URI },
-                    readMediaPermission = android.Manifest.permission.READ_MEDIA_AUDIO,
+                    readMediaPermission = readAudioPermission(),
                     mimeTypePrefix = "audio/",
                     typeLabel = "audio",
                 ),
