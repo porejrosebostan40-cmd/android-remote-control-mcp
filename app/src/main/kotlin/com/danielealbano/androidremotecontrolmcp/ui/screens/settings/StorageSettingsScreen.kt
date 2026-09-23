@@ -3,6 +3,7 @@
 package com.danielealbano.androidremotecontrolmcp.ui.screens.settings
 
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -701,7 +702,10 @@ internal fun builtinRequestPermissions(builtin: BuiltinStorageLocation?): List<S
             ?.mapNotNull { it.readMediaPermission }
             ?.distinct()
             .orEmpty()
-    return if (builtin?.collections?.any { it.isVisual } == true) {
+    return if (
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+        builtin?.collections?.any { it.isVisual } == true
+    ) {
         readMediaPermissions + android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
     } else {
         readMediaPermissions
