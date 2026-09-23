@@ -39,13 +39,18 @@ class AppIconCache
          */
         fun preload(count: Int = PRELOAD_COUNT) {
             scope.launch {
-                val pm = context.packageManager
-                val apps = getLaunchableAppsSorted(pm)
-                launchableApps = apps
-                for (app in apps.take(count)) {
-                    loadAndCache(pm, app.first)
+                try {
+                    val pm = context.packageManager
+                    val apps = getLaunchableAppsSorted(pm)
+                    launchableApps = apps
+                    for (app in apps.take(count)) {
+                        loadAndCache(pm, app.first)
+                    }
+                    Logger.d(TAG, "Preloaded ${apps.size} apps, ${cache.size} icons")
+                } catch (e: Exception) {
+                    // Icon preloading is optional and must never crash the application process.
+                    Logger.e(TAG, "Failed to preload app icons", e)
                 }
-                Logger.d(TAG, "Preloaded ${apps.size} apps, ${cache.size} icons")
             }
         }
 
@@ -130,7 +135,7 @@ class AppIconCache
                     addCategory(android.content.Intent.CATEGORY_LAUNCHER)
                 }
             return pm
-                .queryIntentActivities(launchIntent, PackageManager.ResolveInfoFlags.of(0))
+                .queryIntentActivities(launchIntent, 0)
                 .mapNotNull { resolveInfo ->
                     val pkgName = resolveInfo.activityInfo?.packageName ?: return@mapNotNull null
                     val label = resolveInfo.loadLabel(pm)?.toString() ?: return@mapNotNull null

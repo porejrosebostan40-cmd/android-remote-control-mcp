@@ -186,11 +186,11 @@ abstract class ServiceModule {
 
     @Binds
     @Singleton
-    abstract fun bindApiLevelProvider(impl: DefaultApiLevelProvider): ApiLevelProvider
+    abstract fun bindTypeInputController(impl: TypeInputControllerImpl): TypeInputController
 
     @Binds
     @Singleton
-    abstract fun bindTypeInputController(impl: TypeInputControllerImpl): TypeInputController
+    abstract fun bindApiLevelProvider(impl: DefaultApiLevelProvider): ApiLevelProvider
 
     @Binds
     @Singleton

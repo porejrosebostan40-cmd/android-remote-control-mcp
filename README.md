@@ -153,9 +153,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full build requirements and instructi
 
    - **Accessibility Service** — **required.** Powers UI introspection, action execution, and screenshots; nothing works without it.
      - **If the toggle is greyed out** (Android 13+, common on Samsung/One UI for apps installed from an APK): this is Android's "Restricted settings" protection. A dialog reads *"Restricted setting — For your security, this setting is currently unavailable."* To unblock it, go to **Settings → Apps → Android Remote Control MCP → App info**, tap the **⋮ menu** (top-right), choose **Allow restricted settings**, confirm with your PIN/pattern/biometric, then enable the Accessibility Service. (Play Store / F-Droid installs are not affected.)
-   - **Notifications** — **optional** (recommended for OAuth). OAuth sign-in approvals (Claude.ai / Claude Desktop, ChatGPT, or any third-party OAuth client) arrive as heads-up notifications you tap to confirm the 2-digit code and approve. It is **no longer required** for OAuth login, though: if you don't grant this permission, pending requests still appear as a **card on the app's Server screen** that you tap to review and approve/deny. The **Event Channel** push feature — e.g. pushing device events to Claude Code — runs as a foreground service that posts its status notification through this permission on Android 13+.
+   - **Notifications** — **optional** (recommended for OAuth). OAuth sign-in approvals (Claude.ai / Claude Desktop, ChatGPT, or any third-party OAuth client) arrive as heads-up notifications you tap to confirm. It is **no longer required for OAuth login**, though: if you don't grant this permission, pending requests still appear as a **card on the app's Server screen** that you tap to review and approve/deny. The **Event Channel** push feature — e.g. pushing device events to Claude Code — runs as a foreground service that posts its status notification through this permission on Android 13+.
    - **Other permissions** (optional) — Camera, Microphone, and Location enable their corresponding MCP tools. The app works without them; only the dependent features are disabled until granted. See the [Permissions Reference](#permissions-reference) below for the complete list.
-   - **Storage locations** — configure in Settings > Storage if you plan to use the file tools (automatic locations like Downloads, plus custom locations via SAF).
+   - **Storage locations** — configure in Settings > Storage if you plan to use the file tools (automatic locations like Downloads, plus custom locations via SAF authorization for file tools).
 
 3. **Start the server.** Go back to the **Server tab** and tap **Start**.
 
@@ -252,15 +252,7 @@ Custom connectors are available on the Free (1 connector), Pro, Max, Team, and E
 
 ### Connect from ChatGPT (Custom Connector, OAuth)
 
-ChatGPT connects to the server as a **custom MCP connector** using the same self-contained OAuth 2.1 flow. As with Claude, the server must be reachable over a **public HTTPS URL**, so enable a [remote access tunnel](#using-remote-access-tunnels) first — a `localhost`/LAN address or `adb` port-forward will **not** work. Custom connectors require a paid plan (Plus, Pro, Business, Enterprise, or Edu — not Free) and are set up from the **ChatGPT web app**.
-
-1. **Enable Developer mode** — in ChatGPT on the web, open **Settings → Connectors → Advanced settings** (labelled **Apps & Connectors** on some builds) and turn on **Developer mode**.
-2. **Start the tunnel** — same as the Claude flow above: OAuth stays enabled by default, turn on **Remote Access** under Settings → Tunnel, start the server, and copy the public `https://…/mcp` URL from the Server tab.
-3. **Add the connector** — open **Settings → Connectors → Create**, give it a name and description, paste the `https://…/mcp` URL, select **OAuth** as the authentication method, and leave any Client ID / Client Secret blank (the app self-registers clients via Dynamic Client Registration).
-4. **Approve on the device** — ChatGPT starts the OAuth flow. Tap the heads-up notification — or, if the Notifications permission is off, open the app's **Server** screen and tap the **pending approvals** card — confirm the 2-digit code matches, and **Approve** (identical to the Claude approval step).
-5. Manage or revoke the connected client any time under **Settings → Access → Connected clients** in the app.
-
-> ⚠️ **Security:** the same cautions apply — treat the tunnel URL as sensitive, approve only connections you initiated (verify the code), revoke unused clients, and stop the tunnel and server when you are done.
+ChatGPT connects to the server as a custom MCP connector using the same self-contained OAuth 2.1 flow. As with Claude, the server must be reachable over a public HTTPS URL, so enable a remote access tunnel first. Custom connectors require a paid plan and are set up from the ChatGPT web app.
 
 ### Other MCP Clients
 
@@ -318,7 +310,7 @@ curl -X POST http://localhost:8080/mcp \
 
 Replace `SESSION_ID` with the `mcp-session-id` value from the initialize response headers.
 
-The bearer token is shown in the app's connection info and can be copied directly. Bearer authentication is controlled by the **Bearer token** toggle in **Settings → Access** (not by clearing the value): with it enabled, every `/mcp` request must present the token (or a valid OAuth access token). The server accepts unauthenticated requests only when **both** the Bearer token and OAuth are disabled.
+The bearer token is shown in the app's connection info and can be copied directly. Bearer authentication is controlled by the **Bearer token** toggle in the app's `Settings → Access` (not by clearing the value): with it enabled, every `/mcp` request must present the token (or a valid OAuth access token). The server accepts unauthenticated requests only when both the Bearer token and OAuth are disabled.
 
 ---
 
@@ -581,3 +573,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for build requirements, testing, architec
 ## License
 
 This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
+
+### Android 11 port verification
+
+The active Android 11 compatibility port targets API 30.

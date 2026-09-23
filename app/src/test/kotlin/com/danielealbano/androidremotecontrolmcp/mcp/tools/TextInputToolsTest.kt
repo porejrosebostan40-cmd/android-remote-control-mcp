@@ -5,7 +5,6 @@ package com.danielealbano.androidremotecontrolmcp.mcp.tools
 import android.os.Bundle
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
-import android.view.inputmethod.SurroundingText
 import com.danielealbano.androidremotecontrolmcp.mcp.McpToolException
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.AccessibilityNodeCache
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.AccessibilityNodeData
@@ -13,6 +12,7 @@ import com.danielealbano.androidremotecontrolmcp.services.accessibility.Accessib
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.AccessibilityTreeParser
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.ActionExecutor
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.BoundsData
+import com.danielealbano.androidremotecontrolmcp.services.accessibility.TextSnapshot
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.TypeInputController
 import com.danielealbano.androidremotecontrolmcp.services.accessibility.WindowData
 import com.danielealbano.androidremotecontrolmcp.testutil.PrivacyToolTestDoubles
@@ -81,14 +81,13 @@ class TextInputToolsTest {
     private fun createMockSurroundingText(
         text: String,
         offset: Int = 0,
-    ): SurroundingText {
-        val mock = mockk<SurroundingText>()
-        every { mock.text } returns text
-        every { mock.offset } returns offset
-        every { mock.selectionStart } returns text.length
-        every { mock.selectionEnd } returns text.length
-        return mock
-    }
+    ): TextSnapshot =
+        TextSnapshot(
+            text = text,
+            offset = offset,
+            selectionStart = text.length,
+            selectionEnd = text.length,
+        )
 
     /**
      * Sets up mockTypeInputController to handle per-character verification.

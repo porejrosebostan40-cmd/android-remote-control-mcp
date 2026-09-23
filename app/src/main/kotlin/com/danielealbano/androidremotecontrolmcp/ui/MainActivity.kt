@@ -81,9 +81,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        // Opportunistic update check each time the app is brought to the foreground (throttled by
-        // WorkManager's unique-work policy). Complements the periodic background check.
-        UpdateCheckScheduler.checkOnOpen(this)
+        // Updates are optional. Never let WorkManager/update-check initialization prevent the UI
+        // from starting on older Android releases.
+        runCatching { UpdateCheckScheduler.checkOnOpen(this) }
+            .onFailure { /* logged by the scheduler/worker when available */ }
     }
 
     override fun onResume() {

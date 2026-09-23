@@ -3,6 +3,7 @@ package com.danielealbano.androidremotecontrolmcp.services.storage
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.util.Log
@@ -291,10 +292,9 @@ class StorageLocationProviderImpl
         }
 
         private fun hasPartialVisualAccess(entry: BuiltinStorageLocation): Boolean =
-            entry.collections.any { it.isVisual } &&
-                permissionChecker.hasPermission(
-                    android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
-                )
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                entry.collections.any { it.isVisual } &&
+                permissionChecker.hasPermission(READ_MEDIA_VISUAL_USER_SELECTED_PERMISSION)
 
         @Suppress("TooGenericExceptionCaught")
         private fun querySharedStorageAvailableBytes(): Long? =
@@ -373,6 +373,8 @@ class StorageLocationProviderImpl
         companion object {
             private const val TAG = "MCP:StorageProvider"
             private const val MAX_LOCATION_ID_LOG_LENGTH = 200
+            private const val READ_MEDIA_VISUAL_USER_SELECTED_PERMISSION =
+                "android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
             private val CONTROL_CHAR_REGEX = Regex("[\\p{Cntrl}]")
 
             private fun sanitizeLocationId(locationId: String): String =
