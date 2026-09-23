@@ -2,6 +2,13 @@ package com.danielealbano.androidremotecontrolmcp.services.accessibility
 
 import android.view.KeyEvent
 
+/**
+ * Compatibility abstraction for text editing through AccessibilityNodeInfo.
+ *
+ * The official implementation uses the Android 13+ AccessibilityInputConnection API.
+ * This Android 11 branch deliberately uses ACTION_SET_TEXT on the focused editable
+ * accessibility node instead, keeping the MCP text tools available on API 30.
+ */
 data class TextSnapshot(
     val text: CharSequence,
     val offset: Int,
@@ -11,10 +18,29 @@ data class TextSnapshot(
 
 interface TypeInputController {
     fun isReady(): Boolean
-    fun commitText(text: CharSequence, newCursorPosition: Int): Boolean
-    fun setSelection(start: Int, end: Int): Boolean
-    fun getSurroundingText(beforeLength: Int, afterLength: Int, flags: Int): TextSnapshot?
+
+    fun commitText(
+        text: CharSequence,
+        newCursorPosition: Int,
+    ): Boolean
+
+    fun setSelection(
+        start: Int,
+        end: Int,
+    ): Boolean
+
+    fun getSurroundingText(
+        beforeLength: Int,
+        afterLength: Int,
+        flags: Int,
+    ): TextSnapshot?
+
     fun performContextMenuAction(id: Int): Boolean
+
     fun sendKeyEvent(event: KeyEvent): Boolean
-    fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean
+
+    fun deleteSurroundingText(
+        beforeLength: Int,
+        afterLength: Int,
+    ): Boolean
 }
