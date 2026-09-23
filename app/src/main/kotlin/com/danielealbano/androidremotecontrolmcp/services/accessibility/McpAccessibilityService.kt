@@ -408,10 +408,6 @@ class McpAccessibilityService : AccessibilityService() {
         var instance: McpAccessibilityService? = null
             private set
 
-        @Volatile
-        var inputMethodInstance: McpInputMethod? = null
-            private set
-
         fun showToolCallIndicator(toolName: String) {
             if (instance == null) return
             Handler(Looper.getMainLooper()).post {
