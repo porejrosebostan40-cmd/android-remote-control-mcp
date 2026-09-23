@@ -45,14 +45,22 @@ class McpApplication :
         // Flavor-specific one-time migrations (gms: geofence config → dedicated key), launched eagerly
         // on a background coroutine (non-blocking — must never stall onCreate). No-op in foss.
         runFlavorStartupMigrations(this)
-        createNotificationChannels()
-        configureOsmdroid()
-        appIconCache.preload()
-        // Apply the one-time auth-model migration eagerly so the UI Flow reflects the migrated model
-        // promptly at startup (idempotent; the server start path also guarantees it via getServerConfig()).
-        CoroutineScope(Dispatchers.IO).launch { settingsRepository.ensureAuthModelMigrated() }
-        UpdateCheckScheduler.schedulePeriodic(this)
-        Log.i(TAG, "Application initialized, notification channels created")
+        runCatching { createNotificationChannels() }
+            .onFailure { Log.e(TAG, "Failed to create notification channels", it) }
+        runCatching { configureOsmdroid() }
+            .onFailure { Log.e(TAG, "Failed to configure osmdroid", it) }
+
+        // Startup must remain usable on Android 11. Optional background initialization is isolated
+        // so a device-specific PackageManager/WorkManager failure cannot terminate the process.
+        runCatching { appIconCache.preload() }
+            .onFailure { Log.e(TAG, "Failed to start app-icon preload", it) }
+        CoroutineScope(Dispatchers.IO).launch {
+            runCatching { settingsRepository.ensureAuthModelMigrated() }
+                .onFailure { Log.e(TAG, "Failed to migrate auth model", it) }
+        }
+        runCatching { UpdateCheckScheduler.schedulePeriodic(this) }
+            .onFailure { Log.e(TAG, "Failed to schedule update check", it) }
+        Log.i(TAG, "Application initialized")
     }
 
     private fun configureOsmdroid() {
