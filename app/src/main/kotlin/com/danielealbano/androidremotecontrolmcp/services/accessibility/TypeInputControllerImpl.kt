@@ -28,8 +28,7 @@ class TypeInputControllerImpl
         @Volatile
         private var selectionEnd = -1
 
-        private fun focusedNode(): AccessibilityNodeInfo? =
-            findFocusedEditableNodeForInput(accessibilityServiceProvider)
+        private fun focusedNode(): AccessibilityNodeInfo? = findFocusedEditableNodeForInput(accessibilityServiceProvider)
 
         override fun isReady(): Boolean {
             if (!accessibilityServiceProvider.isReady()) return false
