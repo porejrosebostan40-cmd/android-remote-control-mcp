@@ -24,6 +24,7 @@ class TypeInputControllerImpl
     ) : TypeInputController {
         @Volatile
         private var selectionStart = -1
+
         @Volatile
         private var selectionEnd = -1
 
@@ -179,9 +180,7 @@ class TypeInputControllerImpl
             node.recycle()
         }
 
-        private fun findFocusedEditableNodeForInput(
-            provider: AccessibilityServiceProvider,
-        ): AccessibilityNodeInfo? =
+        private fun findFocusedEditableNodeForInput(provider: AccessibilityServiceProvider): AccessibilityNodeInfo? =
             synchronized(AccessibilityTreeLock.monitor) {
                 if (!provider.isReady()) return@synchronized null
                 val windows = provider.getAccessibilityWindows()
