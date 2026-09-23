@@ -27,7 +27,8 @@ class TypeInputControllerImpl
         @Volatile
         private var selectionEnd = -1
 
-        private fun focusedNode(): AccessibilityNodeInfo? = findFocusedEditableNodeForInput(accessibilityServiceProvider)
+        private fun focusedNode(): AccessibilityNodeInfo? =
+            findFocusedEditableNodeForInput(accessibilityServiceProvider)
 
         override fun isReady(): Boolean {
             if (!accessibilityServiceProvider.isReady()) return false
@@ -60,7 +61,10 @@ class TypeInputControllerImpl
             }
         }
 
-        override fun setSelection(start: Int, end: Int): Boolean {
+        override fun setSelection(
+            start: Int,
+            end: Int,
+        ): Boolean {
             val node = focusedNode() ?: return false
             return try {
                 val length = node.text?.length ?: 0
@@ -174,8 +178,7 @@ class TypeInputControllerImpl
 
         private fun findFocusedEditableNodeForInput(
             provider: AccessibilityServiceProvider,
-        ): AccessibilityNodeInfo? =
-            synchronized(AccessibilityTreeLock.monitor) {
+        ): AccessibilityNodeInfo? = synchronized(AccessibilityTreeLock.monitor) {
                 if (!provider.isReady()) return@synchronized null
                 val windows = provider.getAccessibilityWindows()
                 try {
