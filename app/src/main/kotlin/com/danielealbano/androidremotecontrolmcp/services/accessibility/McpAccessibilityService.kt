@@ -2,7 +2,6 @@ package com.danielealbano.androidremotecontrolmcp.services.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.accessibilityservice.InputMethod
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.res.Configuration
@@ -135,7 +134,6 @@ class McpAccessibilityService : AccessibilityService() {
         serviceScope = null
         currentPackageName = null
         currentActivityName = null
-        inputMethodInstance = null
         removeToolCallIndicator()
         instance = null
 
@@ -239,12 +237,6 @@ class McpAccessibilityService : AccessibilityService() {
         )
     }
 
-    override fun onCreateInputMethod(): InputMethod {
-        val method = McpInputMethod(this)
-        inputMethodInstance = method
-        return method
-    }
-
     private fun showToolCallIndicatorInternal(toolName: String) {
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val textView = (toolCallIndicatorView as? TextView) ?: createToolCallIndicatorView()
@@ -306,8 +298,7 @@ class McpAccessibilityService : AccessibilityService() {
                     AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
                 feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
                 flags = AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS or
-                    AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS or
-                    AccessibilityServiceInfo.FLAG_INPUT_METHOD_EDITOR
+                    AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
                 notificationTimeout = NOTIFICATION_TIMEOUT_MS
             }
         if (serviceInfo == null) {
@@ -368,26 +359,24 @@ class McpAccessibilityService : AccessibilityService() {
         }
 
     /**
-     * Returns true if screenshot capability is available. Always true on minSdk 33+.
+     * Returns true when screenshot capability is available on Android 11+.
      */
     @Suppress("FunctionOnlyReturningConstant")
     fun canTakeScreenshot(): Boolean = true
 
     /**
-     * Drops the framework's accessibility node cache for this service via [clearCache] (public
-     * since API 33; minSdk is 33). See [AccessibilityServiceProvider.clearFrameworkNodeCache] for
-     * why this is needed to defeat stale WebView reads after JavaScript DOM changes.
+     * Drops the framework accessibility cache when the platform exposes clearCache().
+     * Android 11-12 do not expose that API, so this compatibility branch safely skips
+     * the framework-cache call on those versions.
      *
      * This is distinct from [invalidateCache], which flushes our own id→node [nodeCache]; this
      * clears the framework-side cache that backs [rootInActiveWindow]/[getWindows] traversal.
      */
     fun clearFrameworkNodeCache() {
-        clearCache()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            clearCache()
+        }
     }
-
-    class McpInputMethod(
-        service: AccessibilityService,
-    ) : InputMethod(service)
 
     companion object {
         private const val TAG = "MCP:AccessibilityService"
@@ -417,10 +406,6 @@ class McpAccessibilityService : AccessibilityService() {
          */
         @Volatile
         var instance: McpAccessibilityService? = null
-            private set
-
-        @Volatile
-        var inputMethodInstance: McpInputMethod? = null
             private set
 
         fun showToolCallIndicator(toolName: String) {
