@@ -49,6 +49,7 @@ class StorageLocationProviderTest {
         BuiltinStorageLocation.PICTURES.collections[1].readMediaPermission!!
     private val audioReadPermission =
         BuiltinStorageLocation.RECORDINGS.collections[0].readMediaPermission!!
+
     @MockK
     private lateinit var mockContext: Context
 
