@@ -43,6 +43,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 @DisplayName("StorageLocationProviderImpl")
 class StorageLocationProviderTest {
+    private val imagesReadPermission = BuiltinStorageLocation.PICTURES.collections[0].readMediaPermission!!
+    private val videoReadPermission = BuiltinStorageLocation.PICTURES.collections[1].readMediaPermission!!
+    private val audioReadPermission = BuiltinStorageLocation.RECORDINGS.collections[0].readMediaPermission!!
     @MockK
     private lateinit var mockContext: Context
 
@@ -1339,10 +1342,10 @@ class StorageLocationProviderTest {
                 // Arrange
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
                 every {
-                    mockPermissionChecker.hasPermission(BuiltinStorageLocation.PICTURES.collections[0].readMediaPermission!!)
+                    mockPermissionChecker.hasPermission(imagesReadPermission)
                 } returns true
                 every {
-                    mockPermissionChecker.hasPermission(BuiltinStorageLocation.PICTURES.collections[1].readMediaPermission!!)
+                    mockPermissionChecker.hasPermission(videoReadPermission)
                 } returns true
 
                 // Act
@@ -1426,7 +1429,7 @@ class StorageLocationProviderTest {
                 // Arrange
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
                 every {
-                    mockPermissionChecker.hasPermission(BuiltinStorageLocation.RECORDINGS.collections[0].readMediaPermission!!)
+                    mockPermissionChecker.hasPermission(audioReadPermission)
                 } returns true
 
                 // Act
