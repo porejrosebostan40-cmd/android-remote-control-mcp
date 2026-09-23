@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -92,8 +93,12 @@ class NgrokTunnelIntegrationTest {
                     it.start()
                 }
 
-            val authtoken = System.getenv("NGROK_AUTHTOKEN")!!
-            val config = ServerConfig(ngrokAuthtoken = authtoken)
+            val authtoken = System.getenv("NGROK_AUTHTOKEN")
+            assumeTrue(
+                !authtoken.isNullOrEmpty(),
+                "NGROK_AUTHTOKEN is not configured; skipping external ngrok integration test.",
+            )
+            val config = ServerConfig(ngrokAuthtoken = authtoken!!)
             provider.start(localPort, config)
 
             // Fail fast if start() ended in error (e.g. native library issue)
@@ -206,10 +211,7 @@ class NgrokTunnelIntegrationTest {
         fun checkPrerequisitesAndMockAndroidApis() {
             val authtoken = System.getenv("NGROK_AUTHTOKEN")
             if (authtoken.isNullOrEmpty()) {
-                fail<Unit>(
-                    "NGROK_AUTHTOKEN environment variable is not set. " +
-                        "Set it to a valid ngrok authtoken to run this integration test.",
-                )
+                return
             }
 
             mockkStatic(Log::class)
