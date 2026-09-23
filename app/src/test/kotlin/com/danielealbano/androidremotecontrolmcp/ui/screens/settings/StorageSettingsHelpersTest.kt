@@ -1,5 +1,6 @@
 package com.danielealbano.androidremotecontrolmcp.ui.screens.settings
 
+import android.os.Build
 import com.danielealbano.androidremotecontrolmcp.R
 import com.danielealbano.androidremotecontrolmcp.data.model.BuiltinAccessLevel
 import com.danielealbano.androidremotecontrolmcp.data.model.BuiltinStorageLocation
@@ -15,16 +16,20 @@ class StorageSettingsHelpersTest {
     fun `request permissions include user selected for visual locations`() {
         for (entry in listOf(BuiltinStorageLocation.PICTURES, BuiltinStorageLocation.DCIM)) {
             val permissions = builtinRequestPermissions(entry)
-            assertTrue(permissions.contains(android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED))
-            assertTrue(permissions.contains(android.Manifest.permission.READ_MEDIA_IMAGES))
-            assertTrue(permissions.contains(android.Manifest.permission.READ_MEDIA_VIDEO))
+            assertTrue(permissions.contains(BuiltinStorageLocation.PICTURES.collections[0].readMediaPermission))
+            assertTrue(permissions.contains(BuiltinStorageLocation.PICTURES.collections[1].readMediaPermission))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                assertTrue(permissions.contains("android.permission.READ_MEDIA_VISUAL_USER_SELECTED"))
+            } else {
+                assertFalse(permissions.contains("android.permission.READ_MEDIA_VISUAL_USER_SELECTED"))
+            }
         }
     }
 
     @Test
     fun `request permissions exclude user selected for non-visual locations`() {
         assertEquals(
-            listOf(android.Manifest.permission.READ_MEDIA_AUDIO),
+            listOf(BuiltinStorageLocation.MUSIC.collections[0].readMediaPermission),
             builtinRequestPermissions(BuiltinStorageLocation.MUSIC),
         )
         assertTrue(builtinRequestPermissions(BuiltinStorageLocation.DOWNLOADS).isEmpty())
