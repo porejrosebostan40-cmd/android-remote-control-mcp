@@ -10,29 +10,26 @@ private const val READ_MEDIA_IMAGES_PERMISSION = "android.permission.READ_MEDIA_
 private const val READ_MEDIA_VIDEO_PERMISSION = "android.permission.READ_MEDIA_VIDEO"
 private const val READ_MEDIA_AUDIO_PERMISSION = "android.permission.READ_MEDIA_AUDIO"
 
-private fun readImagesPermission(): String {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+private fun readImagesPermission(): String =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         READ_MEDIA_IMAGES_PERMISSION
     } else {
         READ_EXTERNAL_STORAGE_PERMISSION
     }
-}
 
-private fun readVideoPermission(): String {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+private fun readVideoPermission(): String =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         READ_MEDIA_VIDEO_PERMISSION
     } else {
         READ_EXTERNAL_STORAGE_PERMISSION
     }
-}
 
-private fun readAudioPermission(): String {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+private fun readAudioPermission(): String =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         READ_MEDIA_AUDIO_PERMISSION
     } else {
         READ_EXTERNAL_STORAGE_PERMISSION
     }
-}
 
 /**
  * A MediaStore collection backing (part of) a built-in storage location.
