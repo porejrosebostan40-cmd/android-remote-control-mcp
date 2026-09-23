@@ -3,7 +3,6 @@ package com.danielealbano.androidremotecontrolmcp.services.accessibility
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import com.danielealbano.androidremotecontrolmcp.services.accessibility.AccessibilityTreeLock
 import javax.inject.Inject
 
 /**
@@ -17,13 +16,16 @@ import javax.inject.Inject
  * This is less "natural" than the API 33 InputConnection path, but it preserves the
  * text-editing MCP tools without requiring Android 13.
  */
+@Suppress("ReturnCount", "NestedBlockDepth")
 class TypeInputControllerImpl
     @Inject
     constructor(
         private val accessibilityServiceProvider: AccessibilityServiceProvider,
     ) : TypeInputController {
-        @Volatile private var selectionStart = -1
-        @Volatile private var selectionEnd = -1
+        @Volatile
+        private var selectionStart = -1
+        @Volatile
+        private var selectionEnd = -1
 
         private fun focusedNode(): AccessibilityNodeInfo? =
             findFocusedEditableNodeForInput(accessibilityServiceProvider)
@@ -81,8 +83,10 @@ class TypeInputControllerImpl
             val node = focusedNode() ?: return null
             return try {
                 val full = node.text?.toString().orEmpty()
-                val start = if (selectionStart >= 0) selectionStart.coerceIn(0, full.length) else full.length
-                val end = if (selectionEnd >= 0) selectionEnd.coerceIn(start, full.length) else start
+                val start =
+                    if (selectionStart >= 0) selectionStart.coerceIn(0, full.length) else full.length
+                val end =
+                    if (selectionEnd >= 0) selectionEnd.coerceIn(start, full.length) else start
                 val from = (start - beforeLength).coerceAtLeast(0)
                 val to = (end + afterLength).coerceAtMost(full.length)
                 TextSnapshot(
