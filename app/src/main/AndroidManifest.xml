@@ -12,9 +12,6 @@
     <!-- Boot receiver -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!-- Notifications (optional on Android 11/12; runtime request is gated by SDK) -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
     <!-- App Management -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
@@ -30,9 +27,6 @@
     <!-- WiFi (Event Channel) -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-
-    <!-- Foreground service type for Event Channel (location for geofence/WiFi) -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
     <!-- Android 11 shared-media read access -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -50,7 +44,7 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.AndroidRemoteControlMcp"
-        tools:targetApi="34">
+        >
 
         <!-- Main Activity -->
         <activity
