@@ -1377,7 +1377,11 @@ class StorageLocationProviderTest {
                 // Assert
                 val pictures = result.find { it.id == "builtin:pictures" }
                 assertNotNull(pictures)
-                assertEquals("Pictures - All images, owned videos", pictures!!.name)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    assertEquals("Pictures - All images, owned videos", pictures!!.name)
+                } else {
+                    assertEquals("Pictures - All files", pictures!!.name)
+                }
             }
 
         @Test
@@ -1596,6 +1600,7 @@ class StorageLocationProviderTest {
         @Test
         fun `access level is partial on per-type mixed grant`() =
             runTest {
+                assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 // Arrange — images granted, videos not, no visual selection
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
                 every {
