@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+
 @DisplayName("Text Input Integration Tests")
 class TextInputIntegrationTest {
     private val sampleTree =
