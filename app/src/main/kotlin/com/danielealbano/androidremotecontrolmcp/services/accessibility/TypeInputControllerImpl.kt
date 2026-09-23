@@ -1,82 +1,209 @@
 package com.danielealbano.androidremotecontrolmcp.services.accessibility
 
+import android.os.Bundle
 import android.view.KeyEvent
-import android.view.inputmethod.SurroundingText
+import android.view.accessibility.AccessibilityNodeInfo
+import com.danielealbano.androidremotecontrolmcp.services.accessibility.AccessibilityTreeLock
 import javax.inject.Inject
 
 /**
- * Implementation of [TypeInputController] that delegates to the
- * [AccessibilityInputConnection] obtained from the [McpAccessibilityService]'s
- * [InputMethod] instance.
+ * Android 11-compatible text controller.
  *
- * All methods access the singleton [McpAccessibilityService.inputMethodInstance]
- * to get the current [AccessibilityInputConnection].
+ * AccessibilityInputConnection is an API 33 feature and cannot be used when minSdk is 30.
+ * This implementation performs edits through AccessibilityNodeInfo.ACTION_SET_TEXT,
+ * which has been available since API 21. Cursor/selection state is maintained locally
+ * for the duration of an MCP text operation.
  *
- * **Threading**: The AccessibilityInputConnection is an IPC proxy managed by
- * the accessibility framework — NOT a View-bound InputConnection. Methods can
- * be called safely from any thread. If runtime testing reveals thread-safety
- * issues, the [TypeInputController] interface methods would need to be changed
- * to `suspend` to enable `withContext(Dispatchers.Main)`.
- *
- * **Concurrency**: This class is stateless and safe to call from any thread.
- * Callers must use the file-level `typeOperationMutex` in the typing tools
- * to serialize operations and prevent interleaved character commits.
- *
- * **Return values**: The underlying AccessibilityInputConnection methods return
- * `void`. The Boolean return here indicates IC availability only — NOT whether
- * the target field accepted the operation.
+ * This is less "natural" than the API 33 InputConnection path, but it preserves the
+ * text-editing MCP tools without requiring Android 13.
  */
 class TypeInputControllerImpl
     @Inject
-    constructor() : TypeInputController {
-        private fun getInputConnection() = McpAccessibilityService.inputMethodInstance?.getCurrentInputConnection()
+    constructor(
+        private val accessibilityServiceProvider: AccessibilityServiceProvider,
+    ) : TypeInputController {
+        @Volatile private var selectionStart = -1
+        @Volatile private var selectionEnd = -1
 
-        override fun isReady(): Boolean =
-            McpAccessibilityService.inputMethodInstance?.getCurrentInputStarted() == true &&
-                getInputConnection() != null
+        private fun focusedNode(): AccessibilityNodeInfo? =
+            findFocusedEditableNodeForInput(accessibilityServiceProvider)
+
+        override fun isReady(): Boolean {
+            if (!accessibilityServiceProvider.isReady()) return false
+            val node = focusedNode() ?: return false
+            return try {
+                node.isEditable
+            } finally {
+                recycle(node)
+            }
+        }
 
         override fun commitText(
             text: CharSequence,
             newCursorPosition: Int,
         ): Boolean {
-            val ic = getInputConnection() ?: return false
-            ic.commitText(text, newCursorPosition, null)
-            return true
+            val node = focusedNode() ?: return false
+            return try {
+                val current = node.text?.toString().orEmpty()
+                val start = selectionStart.coerceIn(0, current.length)
+                val end = selectionEnd.coerceIn(start, current.length)
+                val updated = current.substring(0, start) + text + current.substring(end)
+                if (!setNodeText(node, updated)) return false
+
+                val cursor = (start + text.length).coerceIn(0, updated.length)
+                selectionStart = cursor
+                selectionEnd = cursor
+                true
+            } finally {
+                recycle(node)
+            }
         }
 
-        override fun setSelection(
-            start: Int,
-            end: Int,
-        ): Boolean {
-            val ic = getInputConnection() ?: return false
-            ic.setSelection(start, end)
-            return true
+        override fun setSelection(start: Int, end: Int): Boolean {
+            val node = focusedNode() ?: return false
+            return try {
+                val length = node.text?.length ?: 0
+                if (start < 0 || end < start || end > length) return false
+                selectionStart = start
+                selectionEnd = end
+                true
+            } finally {
+                recycle(node)
+            }
         }
 
         override fun getSurroundingText(
             beforeLength: Int,
             afterLength: Int,
             flags: Int,
-        ): SurroundingText? = getInputConnection()?.getSurroundingText(beforeLength, afterLength, flags)
+        ): TextSnapshot? {
+            if (!accessibilityServiceProvider.isReady()) return null
+            val node = focusedNode() ?: return null
+            return try {
+                val full = node.text?.toString().orEmpty()
+                val start = if (selectionStart >= 0) selectionStart.coerceIn(0, full.length) else full.length
+                val end = if (selectionEnd >= 0) selectionEnd.coerceIn(start, full.length) else start
+                val from = (start - beforeLength).coerceAtLeast(0)
+                val to = (end + afterLength).coerceAtMost(full.length)
+                TextSnapshot(
+                    text = full.substring(from, to),
+                    offset = from,
+                    selectionStart = start - from,
+                    selectionEnd = end - from,
+                )
+            } finally {
+                recycle(node)
+            }
+        }
 
         override fun performContextMenuAction(id: Int): Boolean {
-            val ic = getInputConnection() ?: return false
-            ic.performContextMenuAction(id)
-            return true
+            if (id != android.R.id.selectAll) return false
+            val node = focusedNode() ?: return false
+            return try {
+                val length = node.text?.length ?: 0
+                selectionStart = 0
+                selectionEnd = length
+                true
+            } finally {
+                recycle(node)
+            }
         }
 
         override fun sendKeyEvent(event: KeyEvent): Boolean {
-            val ic = getInputConnection() ?: return false
-            ic.sendKeyEvent(event)
-            return true
+            if (event.keyCode != KeyEvent.KEYCODE_DEL || event.action != KeyEvent.ACTION_UP) {
+                return event.keyCode == KeyEvent.KEYCODE_DEL
+            }
+            val node = focusedNode() ?: return false
+            return try {
+                val current = node.text?.toString().orEmpty()
+                val start = selectionStart.coerceIn(0, current.length)
+                val end = selectionEnd.coerceIn(start, current.length)
+                if (start == end) {
+                    if (start == 0) return true
+                    selectionStart = start - 1
+                    selectionEnd = start
+                }
+                val deleteStart = selectionStart.coerceIn(0, current.length)
+                val deleteEnd = selectionEnd.coerceIn(deleteStart, current.length)
+                val updated = current.removeRange(deleteStart, deleteEnd)
+                if (!setNodeText(node, updated)) return false
+                selectionStart = deleteStart
+                selectionEnd = deleteStart
+                true
+            } finally {
+                recycle(node)
+            }
         }
 
         override fun deleteSurroundingText(
             beforeLength: Int,
             afterLength: Int,
         ): Boolean {
-            val ic = getInputConnection() ?: return false
-            ic.deleteSurroundingText(beforeLength, afterLength)
-            return true
+            val node = focusedNode() ?: return false
+            return try {
+                val current = node.text?.toString().orEmpty()
+                val cursor = selectionStart.coerceIn(0, current.length)
+                val from = (cursor - beforeLength).coerceAtLeast(0)
+                val to = (cursor + afterLength).coerceAtMost(current.length)
+                val updated = current.removeRange(from, to)
+                if (!setNodeText(node, updated)) return false
+                selectionStart = from
+                selectionEnd = from
+                true
+            } finally {
+                recycle(node)
+            }
         }
-    }
+
+        private fun setNodeText(node: AccessibilityNodeInfo, text: String): Boolean {
+            val args = Bundle()
+            args.putCharSequence(
+                AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
+                text,
+            )
+            return node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+        }
+
+        private fun recycle(node: AccessibilityNodeInfo) {
+            @Suppress("DEPRECATION")
+            node.recycle()
+        }
+
+        private fun findFocusedEditableNodeForInput(
+            provider: AccessibilityServiceProvider,
+        ): AccessibilityNodeInfo? =
+            synchronized(AccessibilityTreeLock.monitor) {
+                if (!provider.isReady()) return@synchronized null
+                val windows = provider.getAccessibilityWindows()
+                try {
+                    for (window in windows) {
+                        val root = window.root ?: continue
+                        val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+                        if (focused != null && focused.isEditable) {
+                            @Suppress("DEPRECATION")
+                            root.recycle()
+                            return@synchronized focused
+                        }
+                        @Suppress("DEPRECATION")
+                        root.recycle()
+                        if (focused != null) {
+                            @Suppress("DEPRECATION")
+                            focused.recycle()
+                        }
+                    }
+                    if (windows.isEmpty()) {
+                        val root = provider.getRootNode() ?: return@synchronized null
+                        val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+                        @Suppress("DEPRECATION")
+                        root.recycle()
+                        return@synchronized focused?.takeIf { it.isEditable }
+                    }
+                    null
+                } finally {
+                    for (window in windows) {
+                        @Suppress("DEPRECATION")
+                        window.recycle()
+                    }
+                }
+            }
+}
