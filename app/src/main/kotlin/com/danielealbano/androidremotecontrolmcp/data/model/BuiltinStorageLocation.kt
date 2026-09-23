@@ -1,3 +1,10 @@
+package com.danielealbano.androidremotecontrolmcp.data.model
+
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import com.danielealbano.androidremotecontrolmcp.mcp.McpToolException
+
 private const val READ_EXTERNAL_STORAGE_PERMISSION = "android.permission.READ_EXTERNAL_STORAGE"
 private const val READ_MEDIA_IMAGES_PERMISSION = "android.permission.READ_MEDIA_IMAGES"
 private const val READ_MEDIA_VIDEO_PERMISSION = "android.permission.READ_MEDIA_VIDEO"
@@ -15,12 +22,6 @@ private fun readAudioPermission(): String =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) READ_MEDIA_AUDIO_PERMISSION
     else READ_EXTERNAL_STORAGE_PERMISSION
 
-package com.danielealbano.androidremotecontrolmcp.data.model
-
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import com.danielealbano.androidremotecontrolmcp.mcp.McpToolException
 
 /**
  * A MediaStore collection backing (part of) a built-in storage location.
