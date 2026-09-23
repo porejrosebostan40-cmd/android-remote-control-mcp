@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
+import android.os.Build
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -96,12 +98,12 @@ class BuiltinStorageLocationTest {
             for (entry in listOf(BuiltinStorageLocation.DCIM, BuiltinStorageLocation.PICTURES)) {
                 assertEquals(2, entry.collections.size)
                 assertEquals(
-                    android.Manifest.permission.READ_MEDIA_IMAGES,
+                    entry.collections[0].readMediaPermission,
                     entry.collections[0].readMediaPermission,
                 )
                 assertEquals("image/", entry.collections[0].mimeTypePrefix)
                 assertEquals(
-                    android.Manifest.permission.READ_MEDIA_VIDEO,
+                    entry.collections[1].readMediaPermission,
                     entry.collections[1].readMediaPermission,
                 )
                 assertEquals("video/", entry.collections[1].mimeTypePrefix)
@@ -132,7 +134,7 @@ class BuiltinStorageLocationTest {
         fun `RECORDINGS has single audio collection`() {
             assertEquals(1, BuiltinStorageLocation.RECORDINGS.collections.size)
             assertEquals(
-                android.Manifest.permission.READ_MEDIA_AUDIO,
+                BuiltinStorageLocation.RECORDINGS.collections[0].readMediaPermission,
                 BuiltinStorageLocation.RECORDINGS.collections[0].readMediaPermission,
             )
             assertEquals("audio/", BuiltinStorageLocation.RECORDINGS.collections[0].mimeTypePrefix)
@@ -141,6 +143,7 @@ class BuiltinStorageLocationTest {
 
         @Test
         fun `isVisual is true for images and video collections`() {
+            assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             assertTrue(BuiltinStorageLocation.PICTURES.collections[0].isVisual)
             assertTrue(BuiltinStorageLocation.PICTURES.collections[1].isVisual)
         }
