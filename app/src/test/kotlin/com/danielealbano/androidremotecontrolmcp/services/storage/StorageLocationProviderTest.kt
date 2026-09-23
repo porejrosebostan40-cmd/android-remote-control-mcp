@@ -1367,7 +1367,11 @@ class StorageLocationProviderTest {
             runTest {
                 // Arrange — images granted, videos not
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
-                every { mockPermissionChecker.hasPermission(imagesReadPermission) } returns true
+                every {
+                    mockPermissionChecker.hasPermission(any())
+                } answers {
+                    firstArg<String>() == imagesReadPermission
+                }
 
                 // Act
                 val result = provider.getAllLocations()
@@ -1530,8 +1534,11 @@ class StorageLocationProviderTest {
             runTest {
                 // Arrange
                 coEvery { mockSettingsRepository.getStoredLocations() } returns emptyList()
-                every { mockPermissionChecker.hasPermission(imagesReadPermission) } returns true
-                every { mockPermissionChecker.hasPermission(videoReadPermission) } returns true
+                every {
+                    mockPermissionChecker.hasPermission(any())
+                } answers {
+                    firstArg<String>() == imagesReadPermission || firstArg<String>() == videoReadPermission
+                }
 
                 // Act
                 val result = provider.getAllLocations()
